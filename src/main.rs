@@ -38,7 +38,15 @@ async fn get_todos(State(pool): State<PgPool>) -> Result<Json<Vec<String>>, Stat
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
-async fn get_todo(Path(todo): Path<String>) -> String { todo }
+async fn get_todo(State(pool): State<PgPool>, Path(todo): Path<String>) -> Result<Json<String>, StatusCode> {
+    sqlx::query_scalar("SELECT todo FROM todos WHERE todo = $1")
+        .bind(todo)
+        .fetch_optional(&pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+        .and_then(|todo| todo.ok_or(StatusCode::NOT_FOUND))
+        .map(|todo| Json(todo))
+}
 
 async fn save_todo(State(pool): State<PgPool>, Path(todo): Path<String>) -> impl IntoResponse {
     sqlx::query("INSERT INTO todos (todo) VALUES ($1) ON CONFLICT (todo) DO NOTHING")
@@ -55,5 +63,5 @@ async fn delete_todo(State(pool): State<PgPool>, Path(todo): Path<String>) -> Re
         .execute(&pool)
         .await
         .map(|_| Json(todo))
-        .map_err(|e| StatusCode::INTERNAL_SERVER_ERROR)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
