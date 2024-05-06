@@ -49,4 +49,11 @@ async fn save_todo(State(pool): State<PgPool>, Path(todo): Path<String>) -> impl
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
-async fn delete_todo() {}
+async fn delete_todo(State(pool): State<PgPool>, Path(todo): Path<String>) -> Result<Json<String>, StatusCode> {
+    sqlx::query("DELETE FROM todos WHERE todo = $1")
+        .bind(todo.clone())
+        .execute(&pool)
+        .await
+        .map(|_| Json(todo))
+        .map_err(|e| StatusCode::INTERNAL_SERVER_ERROR)
+}
