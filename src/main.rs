@@ -1,20 +1,21 @@
 use std::error::Error;
 use std::time::Duration;
 
-use axum::{Json, Router};
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::routing::{delete, get, post};
-use sqlx::PgPool;
+use axum::{Json, Router};
 use sqlx::postgres::PgPoolOptions;
+use sqlx::PgPool;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let pool = PgPoolOptions::new()
         .max_connections(5)
         .acquire_timeout(Duration::from_secs(3))
-        .connect("postgres://admin:secret@localhost/todo").await?;
+        .connect("postgres://admin:secret@localhost/todo")
+        .await?;
 
     let app = Router::new()
         .route("/", get(|| async { "Hello, World!" }))
@@ -38,7 +39,10 @@ async fn get_todos(State(pool): State<PgPool>) -> Result<Json<Vec<String>>, Stat
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
-async fn get_todo(State(pool): State<PgPool>, Path(todo): Path<String>) -> Result<Json<String>, StatusCode> {
+async fn get_todo(
+    State(pool): State<PgPool>,
+    Path(todo): Path<String>,
+) -> Result<Json<String>, StatusCode> {
     sqlx::query_scalar("SELECT todo FROM todos WHERE todo = $1")
         .bind(todo)
         .fetch_optional(&pool)
@@ -57,7 +61,10 @@ async fn save_todo(State(pool): State<PgPool>, Path(todo): Path<String>) -> impl
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
-async fn delete_todo(State(pool): State<PgPool>, Path(todo): Path<String>) -> Result<Json<String>, StatusCode> {
+async fn delete_todo(
+    State(pool): State<PgPool>,
+    Path(todo): Path<String>,
+) -> Result<Json<String>, StatusCode> {
     sqlx::query("DELETE FROM todos WHERE todo = $1")
         .bind(todo.clone())
         .execute(&pool)
