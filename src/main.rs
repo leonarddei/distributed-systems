@@ -4,6 +4,7 @@ use std::time::Duration;
 use axum::{Json, Router};
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
+use axum::response::IntoResponse;
 use axum::routing::{delete, get, post};
 use sqlx::PgPool;
 use sqlx::postgres::PgPoolOptions;
@@ -39,6 +40,13 @@ async fn get_todos(State(pool): State<PgPool>) -> Result<Json<Vec<String>>, Stat
 
 async fn get_todo(Path(todo): Path<String>) -> String { todo }
 
-async fn save_todo() {}
+async fn save_todo(State(pool): State<PgPool>, Path(todo): Path<String>) -> impl IntoResponse {
+    sqlx::query("INSERT INTO todos (todo) VALUES ($1) ON CONFLICT (todo) DO NOTHING")
+        .bind(todo.clone())
+        .execute(&pool)
+        .await
+        .map(|_| (StatusCode::CREATED, Json(todo)))
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
 
 async fn delete_todo() {}
