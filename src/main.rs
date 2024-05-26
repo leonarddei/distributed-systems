@@ -1,3 +1,4 @@
+use std::env;
 use std::error::Error;
 use std::time::Duration;
 
@@ -11,10 +12,21 @@ use sqlx::PgPool;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    let pg_user = env::var("POSTGRES_USER")
+        .expect("Please provide postgres user env var");
+    let pg_password = env::var("POSTGRES_PASSWORD")
+        .expect("Please provide postgres password env var");
+    let pg_db = env::var("POSTGRES_DB")
+        .expect("Please provide postgres database env var");
+    let pg_host = env::var("POSTGRES_HOST")
+        .expect("Please provide postgres host env var");
+    let pg_port = env::var("POSTGRES_PORT")
+        .expect("Please provide postgres port env var");
+
     let pool = PgPoolOptions::new()
         .max_connections(5)
         .acquire_timeout(Duration::from_secs(3))
-        .connect("postgres://admin:secret@localhost/todo")
+        .connect(format!("postgres://{pg_user}:{pg_password}@{pg_host}:{pg_port}/{pg_db}").as_str())
         .await?;
 
     let app = Router::new()
