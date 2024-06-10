@@ -47,7 +47,7 @@ https://hub.docker.com/r/leonarddei/distributed-systems-lab/
     - Status Code: `500 (INTERNAL_SERVER_ERROR)`
 
 ### POST /todos/:todo
-- Description: Inserts a new todo item to the database
+- Description: Inserts a new todo item into the database
 - Method: `POST`
 - Response:
     - Status Code: `201 (CREATED)`
