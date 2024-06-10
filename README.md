@@ -18,7 +18,7 @@ cd distributed-systems
 ``` 
 
 ## Docker Image
-https://hub.docker.com/repository/docker/leonarddei/distributed-systems-lab/
+https://hub.docker.com/r/leonarddei/distributed-systems-lab/
 
 ## API Endpoints
 
