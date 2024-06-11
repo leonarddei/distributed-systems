@@ -17,6 +17,14 @@ cd distributed-systems
    docker compose up
 ``` 
 
+2. Or start the application using Kubernetes
+```bash
+   kubectl apply -f k8s/todo-db-deployment.yml
+   kubectl apply -f k8s/todo-db-service.yml
+   kubectl apply -f k8s/todo-app-deployment.yml
+   kubectl apply -f k8s/todo-app-service.yml
+```
+
 ## Docker Image
 https://hub.docker.com/r/leonarddei/distributed-systems-lab/
 
