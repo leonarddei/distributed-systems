@@ -29,6 +29,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .connect(format!("postgres://{pg_user}:{pg_password}@{pg_host}:{pg_port}/{pg_db}").as_str())
         .await?;
 
+    sqlx::migrate!("./migrations")
+        .run(&pool)
+        .await?;
+
     let app = Router::new()
         .route("/", get(|| async { "Hello, World!" }))
         .route("/todos", get(get_todos))
